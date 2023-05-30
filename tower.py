@@ -5,6 +5,7 @@ import time
 import pygame
 import pygame as pg
 from pygame.sprite import AbstractGroup
+import pygame.mixer
 
 WIDTH = 1600
 HEIGHT = 900
@@ -30,6 +31,20 @@ class tower(pg.sprite.Sprite):
     def update(self,screen: pg.Surface):
         if self.hp < 0:
             self.kill()
+class Chicken(pg.sprite.Sprite):
+    """
+    鶏肉に関するクラス
+    """
+    def __init__(self, side):
+        super().__init__()
+        self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/chicken.png"), 0, 0.3)
+        self.rect = self.image.get_rect()
+        if side == 0:
+            self.rect.center = random.randint(WIDTH/2, WIDTH), random.randint(HEIGHT/2,HEIGHT)
+        elif side == 1:
+            self.rect.center = random.randint(0, WIDTH/2), random.randint(HEIGHT/2,HEIGHT)
+        else:
+            self.rect.center = random.randint(0, WIDTH), random.randint(HEIGHT/2,HEIGHT)
 
 class HPbar(pg.sprite.Sprite):
     """
@@ -37,10 +52,11 @@ class HPbar(pg.sprite.Sprite):
     """
     def __init__(self, tower: tower):
         super().__init__()
-        self.image = pg.Surface((20, tower.rect.height *2))
+        self.image = pg.Surface((20, tower.rect.centery *2))
+        self.rect = self.image.get_rect()
         self.hp = tower.hp
         pg.draw.rect(self.image, (255, 0, 0), pg.Rect(0, 0, self.hp, 5))
-        self.rect = self.image.get_rect()
+        
 
     def update(self):
         if self.hp < 0:
@@ -50,7 +66,7 @@ class Chara(pg.sprite.Sprite):
     """
     出撃するこうかとんに関するクラス
     1,init
-    引数はHPと位置を示すタプルとdx
+    引数はHPと位置を示すタプルとdx,反転させるか(敵であるか)を判定するa
     こうかとんの画像を表示させ指定された位置に置く
     dxはこれの重さや強さを決める数値である
     大きいほど重く防御の堅いキャラクターになる
@@ -59,9 +75,10 @@ class Chara(pg.sprite.Sprite):
     dxの量分移動する
     HPが0になるとグループから消える
     """
-    def __init__(self, hp, xy: tuple[int, int], dx):
+    def __init__(self, hp, xy: tuple[int, int], dx, a = False):
         super().__init__()
-        self.image = pg.transform.rotozoom(pg.image.load("ex05/fig/2.png"), abs(dx)*0.1, abs(dx)*0.1)
+        self.a = a
+        self.image = pg.transform.flip(pg.transform.rotozoom(pg.image.load("ex05/fig/2.png"), abs(dx)*0.1, abs(dx)*0.1), self.a, False)
         self.hp = hp
         self.rect = self.image.get_rect()
         self.rect.center = xy #位置X,Y
@@ -100,26 +117,59 @@ class Hit(pg.sprite.Sprite):
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
             self.kill()
+        if self.obj.hp <= 0:
+            explosion_sound()
+
+class duck_sound():
+    def __init__(self):
+        pygame.mixer.init() #初期化
+
+        pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
+
+        pygame.mixer.music.play(1) #再生
+
+class explosion_sound():
+    def __init__(self):
+        pygame.mixer.init() #初期化
+
+        pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
+
+        pygame.mixer.music.play(1) #再生
+
+class Cooldown():
+    """出撃タイマーの設定"""
+    def __init__(self, cooltime):
+        self.cooltime = cooltime
+        self.timer = 0
+           
+    def flag(self, now):
+        if (now - self.timer >= self.cooltime) or self.timer == 0:
+            self.timer = now
+            return True
+        else:
+            return False
 
         
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
-    Pltower = tower(500, (100, 400))
-    Entower = tower(500, (1500, 400))
+    Pltower = pg.sprite.Group()
+    Entower = pg.sprite.Group()
+    cooltimes = [Cooldown(10), Cooldown(40), Cooldown(200)]
+    Plchara = pg.sprite.Group()
+    Enchara = pg.sprite.Group()
     PlHp = pg.sprite.Group()
     EnHp = pg.sprite.Group()
 
-    Plchara = pg.sprite.Group()
-    Enchara = pg.sprite.Group()
-
     hits = pg.sprite.Group()
-
+    chickens = pg.sprite.Group()
     tmr = 0
     clock = pg.time.Clock()
 
-    PlHp.add(HPbar(Pltower))
-    EnHp.add(HPbar(Entower))
+    Pltower.add(tower(500, (100, 400)))
+    Entower.add(tower(500, (1500, 400)))
+    PlHp.add(HPbar())
+    EnHp.add(HPbar())
     
     while True:
 
@@ -130,11 +180,11 @@ def main():
         if tmr != 0 and tmr % 200 == 0:
             if tmr != 0 and tmr % 400 == 0:
                 if tmr != 0 and tmr % 800 == 0:
-                    Enchara.add(Chara(75, (1500, 400), -15))
+                    Enchara.add(Chara(75, (1500, 400), -15, True))
                 else:
-                    Enchara.add(Chara(50, (1500, 400), -10))
+                    Enchara.add(Chara(50, (1500, 400), -10, True))
             else:
-                Enchara.add(Chara(50, (1500, 400), -5))
+                Enchara.add(Chara(50, (1500, 400), -5, True))
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -143,12 +193,17 @@ def main():
             押したボタンの数値が大きいほど
             強いけど遅いキャラクターが生まれる
             """    
-            if event.type == pg.KEYDOWN and event.key == pg.K_0:
+
+
+            if event.type == pg.KEYDOWN and event.key == pg.K_0 and cooltimes[0].flag(tmr):
                 Plchara.add(Chara(50, (100, 400), 5))
-            if event.type == pg.KEYDOWN and event.key == pg.K_1:
+                duck_sound()
+            if event.type == pg.KEYDOWN and event.key == pg.K_1 and cooltimes[1].flag(tmr):
                 Plchara.add(Chara(75, (100, 400), 10))
-            if event.type == pg.KEYDOWN and event.key == pg.K_2:
+                duck_sound()
+            if event.type == pg.KEYDOWN and event.key == pg.K_2 and cooltimes[2].flag(tmr):
                 Plchara.add(Chara(100, (100, 400), 15))
+                duck_sound()
 
         if len(pg.sprite.spritecollide(Pltower, Enchara, True)) != 0:
             hits.add(Hit(Pltower, 20)) #敵に襲われて自分のタワーにダメージ
@@ -158,9 +213,9 @@ def main():
 
         for ply in pg.sprite.groupcollide(Plchara, Entower, False, False).keys():
             hits.add(Hit(ply, 20)) #敵のタワーの反撃で自分のキャラにダメージ
-        
-        if len(pg.sprite.spritecollide(Entower, Plchara, True)) != 0:
-            hits.add(Hit(Entower, 20)) #自分のキャラが襲撃して敵のタワーにダメージ
+            chickens.add(Chicken(0))
+        for ent in pg.sprite.groupcollide(Entower, Plchara, False, False).keys():
+            hits.add(Hit(ent, 20)) #自分のキャラが襲撃して敵のタワーにダメージ
 
 
         for enm in pg.sprite.groupcollide(Enchara, Plchara, False, False).keys():
@@ -169,8 +224,10 @@ def main():
             
         for enm in pg.sprite.groupcollide(Enchara, Pltower, False, False).keys():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
-
-        if (Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
+            chickens.add(Chicken(1))
+        if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
+            explosion_sound()
+            
             font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 敗北ロゴ生成
             font2 = pygame.font.SysFont(None, 300)
             
@@ -182,10 +239,13 @@ def main():
             pygame.display.update() #描画処理を実行
             pg.display.update()       
             pygame.display.update() #描画処理を実行
+
             time.sleep(2) 
             return
         
         if len(Entower) == 0: #敵のタワーがやられたとき､少し止まって終了
+            explosion_sound()
+            
             font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 勝利ロゴ生成
             font2 = pygame.font.SysFont(None, 300)
             
@@ -196,6 +256,7 @@ def main():
         
             pygame.display.update() #描画処理を実行
             pg.display.update()
+            
             time.sleep(2)
             return
         
@@ -214,6 +275,9 @@ def main():
         Plchara.draw(screen)
         Enchara.update(screen)
         Enchara.draw(screen)
+
+        chickens.update()
+        chickens.draw(screen)
 
         hits.update()
         
