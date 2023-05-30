@@ -90,6 +90,8 @@ class Cooldown():
     def __init__(self, cooltime):
         self.cooltime = cooltime
         self.timer = 0
+        self.color = [240, 128, 128], [50, 50 , 50]
+        
            
     def flag(self, now):
         if (now - self.timer >= self.cooltime) or self.timer == 0:
@@ -98,6 +100,17 @@ class Cooldown():
             return True
         else:
             return False
+        
+    def update(self, now, surface, n):
+        font1 = pg.font.SysFont("hg正楷書体pro", 150)#堤のと合わせて消して
+        font2 = pg.font.SysFont(None, 30)#ここも
+        n += 2
+        text1 = font1.render(f"{n-2}", True, (255, 255, 255))
+        if now - self.timer >= self.cooltime or self.timer == 0:
+            surface.fill(self.color[0], (HEIGHT / 8 * n, 700, 100, 100))
+        else:
+            surface.fill(self.color[1], (HEIGHT / 8 * n, 700, 100, 100))
+        surface.blit(text1, (HEIGHT / 8 * n, 676))
 
         
 def main():
@@ -179,7 +192,8 @@ def main():
 
         Pltower.update(screen)
         Pltower.draw(screen)
-        
+        for i in range(len(cooltimes)):
+            cooltimes[i].update(tmr, screen, i)
         Entower.update(screen)
         Entower.draw(screen)
         
