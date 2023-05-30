@@ -87,6 +87,7 @@ class Hit(pg.sprite.Sprite):
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
+    font = pg.font.Font("ex05/fig/JKG-L_3.ttf", 300)
     Pltower = pg.sprite.Group()
     Entower = pg.sprite.Group()
 
@@ -151,10 +152,14 @@ def main():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
         
         if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
+            screen.blit(font.render("敗北", True, (255,0,0)),[400,400])
+            pg.display.update()
             time.sleep(2) 
             return
         
         if len(Entower) == 0: #敵のタワーがやられたとき､少し止まって終了
+            screen.blit(font.render("勝利！", True, (0,255,0)),[400,400])
+            pg.display.update()
             time.sleep(2)
             return
 
