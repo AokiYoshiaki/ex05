@@ -31,6 +31,21 @@ class tower(pg.sprite.Sprite):
         if self.hp < 0:
             self.kill()
 
+class HPbar(pg.sprite.Sprite):
+    """
+    HPバーに関するクラス
+    """
+    def __init__(self, tower: tower):
+        super().__init__()
+        self.image = pg.Surface((20, tower.rect.height *2))
+        self.hp = tower.hp
+        pg.draw.rect(self.image, (255, 0, 0), pg.Rect(0, 0, self.hp, 5))
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        if self.hp < 0:
+            self.kill()
+        
 class Chara(pg.sprite.Sprite):
     """
     出撃するこうかとんに関するクラス
@@ -85,12 +100,15 @@ class Hit(pg.sprite.Sprite):
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
             self.kill()
+
         
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
-    Pltower = pg.sprite.Group()
-    Entower = pg.sprite.Group()
+    Pltower = tower(500, (100, 400))
+    Entower = tower(500, (1500, 400))
+    PlHp = pg.sprite.Group()
+    EnHp = pg.sprite.Group()
 
     Plchara = pg.sprite.Group()
     Enchara = pg.sprite.Group()
@@ -100,8 +118,8 @@ def main():
     tmr = 0
     clock = pg.time.Clock()
 
-    Pltower.add(tower(500, (100, 400)))
-    Entower.add(tower(500, (1500, 400)))
+    PlHp.add(HPbar(Pltower))
+    EnHp.add(HPbar(Entower))
     
     while True:
 
@@ -132,8 +150,8 @@ def main():
             if event.type == pg.KEYDOWN and event.key == pg.K_2:
                 Plchara.add(Chara(100, (100, 400), 15))
 
-        for plt in pg.sprite.groupcollide(Pltower, Enchara, False, False).keys():
-            hits.add(Hit(plt, 20)) #敵に襲われて自分のタワーにダメージ
+        if len(pg.sprite.spritecollide(Pltower, Enchara, True)) != 0:
+            hits.add(Hit(Pltower, 20)) #敵に襲われて自分のタワーにダメージ
 
         for ply in pg.sprite.groupcollide(Plchara, Enchara, False, False).keys():
             hits.add(Hit(ply, 20)) #敵のキャラクターと戦って自分のキャラにダメージ
@@ -141,8 +159,8 @@ def main():
         for ply in pg.sprite.groupcollide(Plchara, Entower, False, False).keys():
             hits.add(Hit(ply, 20)) #敵のタワーの反撃で自分のキャラにダメージ
         
-        for ent in pg.sprite.groupcollide(Entower, Plchara, False, False).keys():
-            hits.add(Hit(ent, 20)) #自分のキャラが襲撃して敵のタワーにダメージ
+        if len(pg.sprite.spritecollide(Entower, Plchara, True)) != 0:
+            hits.add(Hit(Entower, 20)) #自分のキャラが襲撃して敵のタワーにダメージ
 
 
         for enm in pg.sprite.groupcollide(Enchara, Plchara, False, False).keys():
@@ -151,8 +169,8 @@ def main():
             
         for enm in pg.sprite.groupcollide(Enchara, Pltower, False, False).keys():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
-        
-        if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
+
+        if (Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
             font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 敗北ロゴ生成
             font2 = pygame.font.SysFont(None, 300)
             
@@ -180,15 +198,17 @@ def main():
             pg.display.update()
             time.sleep(2)
             return
-
+        
 
         screen.blit(bg_img, [0, 0])
 
         Pltower.update(screen)
-        Pltower.draw(screen)
-        
         Entower.update(screen)
-        Entower.draw(screen)
+
+        PlHp.update()
+        PlHp.draw(screen)
+        EnHp.update()
+        EnHp.draw(screen)
         
         Plchara.update(screen)
         Plchara.draw(screen)
