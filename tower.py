@@ -5,6 +5,7 @@ import time
 import pygame
 import pygame as pg
 from pygame.sprite import AbstractGroup
+import pygame.mixer
 
 WIDTH = 1600
 HEIGHT = 900
@@ -85,8 +86,24 @@ class Hit(pg.sprite.Sprite):
             else:
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
+            explosion_sound()
             self.kill()
 
+class duck_sound():
+    def __init__(self):
+      pygame.mixer.init() #初期化
+
+      pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
+
+      pygame.mixer.music.play(1) #再生
+
+class explosion_sound():
+    def __init__(self):
+      pygame.mixer.init() #初期化
+
+      pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
+
+      pygame.mixer.music.play(1) #再生
 
 class Cooldown():
     """出撃タイマーの設定"""
@@ -141,6 +158,8 @@ def main():
             押したボタンの数値が大きいほど
             強いけど遅いキャラクターが生まれる
             """    
+
+
             if event.type == pg.KEYDOWN and event.key == pg.K_0 and cooltimes[0].flag(tmr):
                 Plchara.add(Chara(50, (100, 400), 5))
             if event.type == pg.KEYDOWN and event.key == pg.K_1 and cooltimes[1].flag(tmr):
@@ -169,6 +188,8 @@ def main():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
         
         if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
+            explosion_sound()
+            
             font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 敗北ロゴ生成
             font2 = pygame.font.SysFont(None, 300)
             
@@ -180,10 +201,13 @@ def main():
             pygame.display.update() #描画処理を実行
             pg.display.update()       
             pygame.display.update() #描画処理を実行
+
             time.sleep(2) 
             return
         
         if len(Entower) == 0: #敵のタワーがやられたとき､少し止まって終了
+            explosion_sound()
+            
             font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 勝利ロゴ生成
             font2 = pygame.font.SysFont(None, 300)
             
@@ -194,6 +218,7 @@ def main():
         
             pygame.display.update() #描画処理を実行
             pg.display.update()
+            
             time.sleep(2)
             return
 
