@@ -111,21 +111,27 @@ class Hit(pg.sprite.Sprite):
             if self.obj.hp <= 0:
                 explosion_sound()
 
-class duck_sound():
-    def __init__(self):
-        pygame.mixer.init() #初期化
+def BGM():
+    pygame.mixer.init() #初期化
 
-        pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
+    pygame.mixer.music.load("ex05/fig/Tropical.mp3") #読み込み
 
-        pygame.mixer.music.play(1) #再生
+    pygame.mixer.music.play(-1) #再生
 
-class explosion_sound():
-    def __init__(self):
-        pygame.mixer.init() #初期化
+def duck_sound():  # こうかとんに声を追加した
+    pygame.mixer.init() #初期化
 
-        pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
+    dse = pygame.mixer.Sound("ex05/fig/duckvoice.mp3") #読み込み
 
-        pygame.mixer.music.play(1) #再生
+    dse.play() #再生
+
+
+def explosion_sound():
+
+    ese = pygame.mixer.Sound("ex05/fig/explosion_sound.mp3") #読み込み
+
+    ese.play() #再生
+
 
 class Cooldown():
     """出撃タイマーの設定"""
@@ -284,6 +290,7 @@ def main():
         clock.tick(50)
 
 if __name__ == "__main__":
+    BGM()
     pg.init()
     main()
     pg.quit()
