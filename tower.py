@@ -174,7 +174,7 @@ def main():
     clock = pg.time.Clock()
 
     Pltower.add(tower(500, (100, 400)))
-    Entower.add(tower(500, (1500, 400)))
+    Entower.add(tower(50, (1500, 400)))
     
     while True:
 
