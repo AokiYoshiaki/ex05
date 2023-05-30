@@ -86,19 +86,26 @@ class Hit(pg.sprite.Sprite):
             explosion_sound()
             self.kill()
 
+def BGM():
+    pygame.mixer.init() #初期化
+
+    pygame.mixer.music.load("ex05/fig/Tropical.mp3") #読み込み
+
+    pygame.mixer.music.play(-1) #再生
+
 def duck_sound():
     pygame.mixer.init() #初期化
 
-    pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
+    dse = pygame.mixer.Sound("ex05/fig/duckvoice.mp3") #読み込み
 
-    pygame.mixer.music.play(1) #再生
+    dse.play() #再生
 
 def explosion_sound():
     pygame.mixer.init() #初期化
 
-    pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
+    ese = pygame.mixer.Sound("ex05/fig/explosion_sound.mp3") #読み込み
 
-    pygame.mixer.music.play(1) #再生
+    ese.play() #再生
 
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -200,6 +207,7 @@ def main():
         clock.tick(50)
 
 if __name__ == "__main__":
+    BGM()
     pg.init()
     main()
     pg.quit()
