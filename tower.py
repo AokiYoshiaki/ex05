@@ -143,8 +143,7 @@ class Cooldown():
             return False
         
     def update(self, now, surface, n):
-        font1 = pg.font.SysFont("hg正楷書体pro", 150)#堤のと合わせて消して
-        font2 = pg.font.SysFont(None, 30)#ここも
+        font1 = pg.font.SysFont("hg正楷書体pro", 150)
         n += 2
         text1 = font1.render(f"{n-2}", True, (255, 255, 255))
         if now - self.timer >= self.cooltime or self.timer == 0:
