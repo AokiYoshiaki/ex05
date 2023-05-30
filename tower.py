@@ -33,7 +33,7 @@ class Chara(pg.sprite.Sprite):
     """
     出撃するこうかとんに関するクラス
     1,init
-    引数はHPと位置を示すタプルとdx
+    引数はHPと位置を示すタプルとdx,反転させるか(敵であるか)を判定するa
     こうかとんの画像を表示させ指定された位置に置く
     dxはこれの重さや強さを決める数値である
     大きいほど重く防御の堅いキャラクターになる
@@ -42,9 +42,10 @@ class Chara(pg.sprite.Sprite):
     dxの量分移動する
     HPが0になるとグループから消える
     """
-    def __init__(self, hp, xy: tuple[int, int], dx):
+    def __init__(self, hp, xy: tuple[int, int], dx, a = False):
         super().__init__()
-        self.image = pg.transform.rotozoom(pg.image.load("ex05/fig/2.png"), abs(dx)*0.1, abs(dx)*0.1)
+        self.a = a
+        self.image = pg.transform.flip(pg.transform.rotozoom(pg.image.load("ex05/fig/2.png"), abs(dx)*0.1, abs(dx)*0.1), self.a, False)
         self.hp = hp
         self.rect = self.image.get_rect()
         self.rect.center = xy #位置X,Y
@@ -110,11 +111,11 @@ def main():
         if tmr != 0 and tmr % 200 == 0:
             if tmr != 0 and tmr % 400 == 0:
                 if tmr != 0 and tmr % 800 == 0:
-                    Enchara.add(Chara(75, (1500, 400), -15))
+                    Enchara.add(Chara(75, (1500, 400), -15, True))
                 else:
-                    Enchara.add(Chara(50, (1500, 400), -10))
+                    Enchara.add(Chara(50, (1500, 400), -10, True))
             else:
-                Enchara.add(Chara(50, (1500, 400), -5))
+                Enchara.add(Chara(50, (1500, 400), -5, True))
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -123,11 +124,11 @@ def main():
             押したボタンの数値が大きいほど
             強いけど遅いキャラクターが生まれる
             """    
-            if event.type == pg.KEYDOWN and event.key == pg.K_0:
-                Plchara.add(Chara(50, (100, 400), 5))
             if event.type == pg.KEYDOWN and event.key == pg.K_1:
-                Plchara.add(Chara(75, (100, 400), 10))
+                Plchara.add(Chara(50, (100, 400), 5))
             if event.type == pg.KEYDOWN and event.key == pg.K_2:
+                Plchara.add(Chara(75, (100, 400), 10))
+            if event.type == pg.KEYDOWN and event.key == pg.K_3:
                 Plchara.add(Chara(100, (100, 400), 15))
 
         for plt in pg.sprite.groupcollide(Pltower, Enchara, False, False).keys():
