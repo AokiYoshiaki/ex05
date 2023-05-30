@@ -118,7 +118,7 @@ def BGM():
 
     pygame.mixer.music.play(-1) #再生
 
-def duck_sound():
+def duck_sound():  # こうかとんに声を追加した
     pygame.mixer.init() #初期化
 
     dse = pygame.mixer.Sound("ex05/fig/duckvoice.mp3") #読み込み
