@@ -53,6 +53,22 @@ class Chicken(pg.sprite.Sprite):
             self.kill()
 
 
+class HPbar(pg.sprite.Sprite):
+    """
+    HPバーに関するクラス
+    """
+    def __init__(self, tower: tower):
+        super().__init__()
+        self.image = pg.Surface((20, tower.rect.centery *2))
+        self.rect = self.image.get_rect()
+        self.hp = tower.hp
+        pg.draw.rect(self.image, (255, 0, 0), pg.Rect(0, 0, self.hp, 5))
+        
+
+    def update(self):
+        if self.hp < 0:
+            self.kill()
+        
 class Chara(pg.sprite.Sprite):
     """
     出撃するこうかとんに関するクラス
@@ -161,6 +177,8 @@ def main():
     cooltimes = [Cooldown(10), Cooldown(40), Cooldown(200)]
     Plchara = pg.sprite.Group()
     Enchara = pg.sprite.Group()
+    PlHp = pg.sprite.Group()
+    EnHp = pg.sprite.Group()
 
     hits = pg.sprite.Group()
     chickens = pg.sprite.Group()
@@ -169,6 +187,8 @@ def main():
 
     Pltower.add(tower(500, (100, 400)))
     Entower.add(tower(500, (1500, 400)))
+    PlHp.add(HPbar())
+    EnHp.add(HPbar())
     
     while True:
 
@@ -204,8 +224,8 @@ def main():
                 Plchara.add(Chara(100, (100, 400), 15))
                 duck_sound()
 
-        for plt in pg.sprite.groupcollide(Pltower, Enchara, False, False).keys():
-            hits.add(Hit(plt, 20)) #敵に襲われて自分のタワーにダメージ
+        if len(pg.sprite.spritecollide(Pltower, Enchara, True)) != 0:
+            hits.add(Hit(Pltower, 20)) #敵に襲われて自分のタワーにダメージ
 
         for ply in pg.sprite.groupcollide(Plchara, Enchara, False, False).keys():
             hits.add(Hit(ply, 20)) #敵のキャラクターと戦って自分のキャラにダメージ
@@ -258,16 +278,19 @@ def main():
             
             time.sleep(2)
             return
-
+        
 
         screen.blit(bg_img, [0, 0])
 
         Pltower.update(screen)
-        Pltower.draw(screen)
         for i in range(len(cooltimes)):
             cooltimes[i].update(tmr, screen, i)
         Entower.update(screen)
-        Entower.draw(screen)
+
+        PlHp.update()
+        PlHp.draw(screen)
+        EnHp.update()
+        EnHp.draw(screen)
         
         Plchara.update(screen)
         Plchara.draw(screen)
