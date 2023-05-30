@@ -31,6 +31,20 @@ class tower(pg.sprite.Sprite):
     def update(self,screen: pg.Surface):
         if self.hp < 0:
             self.kill()
+class Chicken(pg.sprite.Sprite):
+    """
+    鶏肉に関するクラス
+    """
+    def __init__(self, side):
+        super().__init__()
+        self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/chicken.png"), 0, 0.3)
+        self.rect = self.image.get_rect()
+        if side == 0:
+            self.rect.center = random.randint(WIDTH/2, WIDTH), random.randint(HEIGHT/2,HEIGHT)
+        elif side == 1:
+            self.rect.center = random.randint(0, WIDTH/2), random.randint(HEIGHT/2,HEIGHT)
+        else:
+            self.rect.center = random.randint(0, WIDTH), random.randint(HEIGHT/2,HEIGHT)
 
 class Chara(pg.sprite.Sprite):
     """
@@ -130,7 +144,7 @@ def main():
     Enchara = pg.sprite.Group()
 
     hits = pg.sprite.Group()
-
+    chickens = pg.sprite.Group()
     tmr = 0
     clock = pg.time.Clock()
 
@@ -179,7 +193,7 @@ def main():
 
         for ply in pg.sprite.groupcollide(Plchara, Entower, False, False).keys():
             hits.add(Hit(ply, 20)) #敵のタワーの反撃で自分のキャラにダメージ
-        
+            chickens.add(Chicken(0))
         for ent in pg.sprite.groupcollide(Entower, Plchara, False, False).keys():
             hits.add(Hit(ent, 20)) #自分のキャラが襲撃して敵のタワーにダメージ
 
@@ -190,7 +204,7 @@ def main():
             
         for enm in pg.sprite.groupcollide(Enchara, Pltower, False, False).keys():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
-        
+            chickens.add(Chicken(1))
         if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
             explosion_sound()
             
@@ -239,6 +253,9 @@ def main():
         Plchara.draw(screen)
         Enchara.update(screen)
         Enchara.draw(screen)
+
+        chickens.update()
+        chickens.draw(screen)
 
         hits.update()
         
