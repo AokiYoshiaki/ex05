@@ -83,13 +83,29 @@ class Hit(pg.sprite.Sprite):
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
             self.kill()
+
+
+class Cooldown():
+    """出撃タイマーの設定"""
+    def __init__(self, cooltime):
+        self.cooltime = cooltime
+        self.timer = 0
+           
+    def flag(self, now):
+        if (now - self.timer >= self.cooltime) or self.timer == 0:
+            self.timer = now
+            print(self.timer)
+            return True
+        else:
+            return False
+
         
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
     Pltower = pg.sprite.Group()
     Entower = pg.sprite.Group()
-
+    cooltimes = [Cooldown(10), Cooldown(40), Cooldown(200)]
     Plchara = pg.sprite.Group()
     Enchara = pg.sprite.Group()
 
@@ -123,11 +139,11 @@ def main():
             押したボタンの数値が大きいほど
             強いけど遅いキャラクターが生まれる
             """    
-            if event.type == pg.KEYDOWN and event.key == pg.K_0:
+            if event.type == pg.KEYDOWN and event.key == pg.K_0 and cooltimes[0].flag(tmr):
                 Plchara.add(Chara(50, (100, 400), 5))
-            if event.type == pg.KEYDOWN and event.key == pg.K_1:
+            if event.type == pg.KEYDOWN and event.key == pg.K_1 and cooltimes[1].flag(tmr):
                 Plchara.add(Chara(75, (100, 400), 10))
-            if event.type == pg.KEYDOWN and event.key == pg.K_2:
+            if event.type == pg.KEYDOWN and event.key == pg.K_2 and cooltimes[2].flag(tmr):
                 Plchara.add(Chara(100, (100, 400), 15))
 
         for plt in pg.sprite.groupcollide(Pltower, Enchara, False, False).keys():
@@ -183,4 +199,3 @@ if __name__ == "__main__":
     main()
     pg.quit()
     sys.exit()
-
