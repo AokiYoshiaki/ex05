@@ -1,7 +1,9 @@
-from typing import Any
-import pygame as pg
+import math
+import random
 import sys
 import time
+import pygame
+import pygame as pg
 from pygame.sprite import AbstractGroup
 
 WIDTH = 1600
@@ -87,7 +89,6 @@ class Hit(pg.sprite.Sprite):
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
-    font = pg.font.Font("ex05/fig/JKG-L_3.ttf", 300)
     Pltower = pg.sprite.Group()
     Entower = pg.sprite.Group()
 
@@ -152,13 +153,30 @@ def main():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
         
         if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
-            screen.blit(font.render("敗北", True, (255,0,0)),[400,400])
-            pg.display.update()
+            font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 敗北ロゴ生成
+            font2 = pygame.font.SysFont(None, 300)
+            
+            text1 = font1.render("敗北", True, (255,0,0))
+            text2 = font2.render("LOSE", True, (255,0,0))
+            screen.blit(text1, (WIDTH/2-400,HEIGHT/2-400))
+            screen.blit(text2, (WIDTH/2-300,HEIGHT/2+100))
+        
+            pygame.display.update() #描画処理を実行
+            pg.display.update()       
+            pygame.display.update() #描画処理を実行
             time.sleep(2) 
             return
         
         if len(Entower) == 0: #敵のタワーがやられたとき､少し止まって終了
-            screen.blit(font.render("勝利！", True, (0,255,0)),[400,400])
+            font1 = pygame.font.SysFont("hg正楷書体pro", 400)  # 勝利ロゴ生成
+            font2 = pygame.font.SysFont(None, 300)
+            
+            text1 = font1.render("勝利", True, (255,255,0))
+            text2 = font2.render("WIN", True, (255,255,0))
+            screen.blit(text1, (WIDTH/2-400,HEIGHT/2-400))
+            screen.blit(text2, (WIDTH/2-200,HEIGHT/2+100))
+        
+            pygame.display.update() #描画処理を実行
             pg.display.update()
             time.sleep(2)
             return
