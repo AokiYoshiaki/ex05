@@ -86,24 +86,25 @@ class Hit(pg.sprite.Sprite):
             else:
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
-            explosion_sound()
             self.kill()
+        if self.obj.hp <= 0:
+            explosion_sound()
 
 class duck_sound():
     def __init__(self):
-      pygame.mixer.init() #初期化
+        pygame.mixer.init() #初期化
 
-      pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
+        pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
 
-      pygame.mixer.music.play(1) #再生
+        pygame.mixer.music.play(1) #再生
 
 class explosion_sound():
     def __init__(self):
-      pygame.mixer.init() #初期化
+        pygame.mixer.init() #初期化
 
-      pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
+        pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
 
-      pygame.mixer.music.play(1) #再生
+        pygame.mixer.music.play(1) #再生
 
 class Cooldown():
     """出撃タイマーの設定"""
@@ -162,10 +163,13 @@ def main():
 
             if event.type == pg.KEYDOWN and event.key == pg.K_0 and cooltimes[0].flag(tmr):
                 Plchara.add(Chara(50, (100, 400), 5))
+                duck_sound()
             if event.type == pg.KEYDOWN and event.key == pg.K_1 and cooltimes[1].flag(tmr):
                 Plchara.add(Chara(75, (100, 400), 10))
+                duck_sound()
             if event.type == pg.KEYDOWN and event.key == pg.K_2 and cooltimes[2].flag(tmr):
                 Plchara.add(Chara(100, (100, 400), 15))
+                duck_sound()
 
         for plt in pg.sprite.groupcollide(Pltower, Enchara, False, False).keys():
             hits.add(Hit(plt, 20)) #敵に襲われて自分のタワーにダメージ
