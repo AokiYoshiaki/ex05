@@ -2,6 +2,7 @@ import math
 import random
 import sys
 import time
+from typing import Any
 import pygame
 import pygame as pg
 from pygame.sprite import AbstractGroup
@@ -39,12 +40,18 @@ class Chicken(pg.sprite.Sprite):
         super().__init__()
         self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/chicken.png"), 0, 0.3)
         self.rect = self.image.get_rect()
+        self.life = 50
         if side == 0:
             self.rect.center = random.randint(WIDTH/2, WIDTH), random.randint(HEIGHT/2,HEIGHT)
         elif side == 1:
             self.rect.center = random.randint(0, WIDTH/2), random.randint(HEIGHT/2,HEIGHT)
         else:
             self.rect.center = random.randint(0, WIDTH), random.randint(HEIGHT/2,HEIGHT)
+    def update(self):
+        self.life -=1
+        if self.life < 0:
+            self.kill()
+
 
 class HPbar(pg.sprite.Sprite):
     """
@@ -117,8 +124,8 @@ class Hit(pg.sprite.Sprite):
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
             self.kill()
-        if self.obj.hp <= 0:
-            explosion_sound()
+            if self.obj.hp <= 0:
+                explosion_sound()
 
 class duck_sound():
     def __init__(self):
@@ -141,6 +148,8 @@ class Cooldown():
     def __init__(self, cooltime):
         self.cooltime = cooltime
         self.timer = 0
+        self.color = [240, 128, 128], [50, 50 , 50]
+        
            
     def flag(self, now):
         if (now - self.timer >= self.cooltime) or self.timer == 0:
@@ -148,6 +157,16 @@ class Cooldown():
             return True
         else:
             return False
+        
+    def update(self, now, surface, n):
+        font1 = pg.font.SysFont("hg正楷書体pro", 150)
+        n += 2
+        text1 = font1.render(f"{n-2}", True, (255, 255, 255))
+        if now - self.timer >= self.cooltime or self.timer == 0:
+            surface.fill(self.color[0], (HEIGHT / 8 * n, 700, 100, 100))
+        else:
+            surface.fill(self.color[1], (HEIGHT / 8 * n, 700, 100, 100))
+        surface.blit(text1, (HEIGHT / 8 * n, 676))
 
         
 def main():
@@ -264,6 +283,8 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         Pltower.update(screen)
+        for i in range(len(cooltimes)):
+            cooltimes[i].update(tmr, screen, i)
         Entower.update(screen)
 
         PlHp.update()
