@@ -3,6 +3,7 @@ import pygame as pg
 import sys
 import time
 from pygame.sprite import AbstractGroup
+import pygame.mixer
 
 WIDTH = 1600
 HEIGHT = 900
@@ -82,8 +83,23 @@ class Hit(pg.sprite.Sprite):
             else:
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
+            explosion_sound()
             self.kill()
-        
+
+def duck_sound():
+    pygame.mixer.init() #初期化
+
+    pygame.mixer.music.load("ex05/fig/duckvoice.mp3") #読み込み
+
+    pygame.mixer.music.play(1) #再生
+
+def explosion_sound():
+    pygame.mixer.init() #初期化
+
+    pygame.mixer.music.load("ex05/fig/explosion_sound.mp3") #読み込み
+
+    pygame.mixer.music.play(1) #再生
+
 def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("ex05/fig/pg_bg.jpg")
@@ -124,10 +140,13 @@ def main():
             強いけど遅いキャラクターが生まれる
             """    
             if event.type == pg.KEYDOWN and event.key == pg.K_0:
+                duck_sound()
                 Plchara.add(Chara(50, (100, 400), 5))
             if event.type == pg.KEYDOWN and event.key == pg.K_1:
+                duck_sound()
                 Plchara.add(Chara(75, (100, 400), 10))
             if event.type == pg.KEYDOWN and event.key == pg.K_2:
+                duck_sound()
                 Plchara.add(Chara(100, (100, 400), 15))
 
         for plt in pg.sprite.groupcollide(Pltower, Enchara, False, False).keys():
@@ -151,10 +170,12 @@ def main():
             hits.add(Hit(enm, 20)) #自分のタワーの反撃で敵のキャラにダメージ
         
         if len(Pltower) == 0: #自分のタワーがやられたとき､少し止まって終了
+            explosion_sound()
             time.sleep(2) 
             return
         
         if len(Entower) == 0: #敵のタワーがやられたとき､少し止まって終了
+            explosion_sound()
             time.sleep(2)
             return
 
