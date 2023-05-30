@@ -2,6 +2,7 @@ import math
 import random
 import sys
 import time
+from typing import Any
 import pygame
 import pygame as pg
 from pygame.sprite import AbstractGroup
@@ -39,12 +40,18 @@ class Chicken(pg.sprite.Sprite):
         super().__init__()
         self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/chicken.png"), 0, 0.3)
         self.rect = self.image.get_rect()
+        self.life = 50
         if side == 0:
             self.rect.center = random.randint(WIDTH/2, WIDTH), random.randint(HEIGHT/2,HEIGHT)
         elif side == 1:
             self.rect.center = random.randint(0, WIDTH/2), random.randint(HEIGHT/2,HEIGHT)
         else:
             self.rect.center = random.randint(0, WIDTH), random.randint(HEIGHT/2,HEIGHT)
+    def update(self):
+        self.life -=1
+        if self.life < 0:
+            self.kill()
+
 
 class Chara(pg.sprite.Sprite):
     """
@@ -101,8 +108,8 @@ class Hit(pg.sprite.Sprite):
                 self.obj.rect.centerx += 5/self.obj.weight #dxが大きいほどノックバックしにくい
         if self.life < 0:
             self.kill()
-        if self.obj.hp <= 0:
-            explosion_sound()
+            if self.obj.hp <= 0:
+                explosion_sound()
 
 class duck_sound():
     def __init__(self):
