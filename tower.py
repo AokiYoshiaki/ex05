@@ -174,7 +174,7 @@ def main():
     clock = pg.time.Clock()
 
     Pltower.add(tower(500, (100, 400)))
-    Entower.add(tower(50, (1500, 400)))
+    Entower.add(tower(500, (1500, 400)))
     
     while True:
 
@@ -241,9 +241,7 @@ def main():
             screen.blit(text1, (WIDTH/2-400,HEIGHT/2-400))
             screen.blit(text2, (WIDTH/2-300,HEIGHT/2+100))
         
-            pygame.display.update() #描画処理を実行
             pg.display.update()       
-            pygame.display.update() #描画処理を実行
 
             time.sleep(2) 
             return
@@ -259,7 +257,7 @@ def main():
             screen.blit(text1, (WIDTH/2-400,HEIGHT/2-400))
             screen.blit(text2, (WIDTH/2-200,HEIGHT/2+100))
         
-            pygame.display.update() #描画処理を実行
+             #描画処理を実行
             pg.display.update()
             
             time.sleep(2)
@@ -285,6 +283,15 @@ def main():
 
         hits.update()
         
+        if tmr <= 60:
+            font1 = pygame.font.SysFont("hg正楷書体pro", 400)
+            font2 = pygame.font.SysFont(None, 300)
+
+            text1 = font1.render("開始", True, (0,255,0))
+            text2 = font2.render("START", True, (0,255,0))
+            screen.blit(text1, (WIDTH/2-400,HEIGHT/2-400))
+            screen.blit(text2, (WIDTH/2-300,HEIGHT/2+100))
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
