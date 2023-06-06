@@ -282,7 +282,7 @@ def main():
         chickens.draw(screen)
 
         hits.update()
-        
+
         if tmr <= 60:
             font1 = pygame.font.SysFont("hg正楷書体pro", 400)
             font2 = pygame.font.SysFont(None, 300)
